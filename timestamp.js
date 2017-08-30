@@ -62,14 +62,6 @@ const register = (lanes, users, harbors, shipments) => {
 };
 
 const update = (lane, values) => {
-  const harbor = Harbors.findOne(lane.type);
-
-  harbor.lanes[lane._id] = {
-    manifest: values,
-  };
-
-  Harbors.update(harbor._id, harbor);
-
   return true;
 };
 
