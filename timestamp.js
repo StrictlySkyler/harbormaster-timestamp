@@ -39,9 +39,9 @@ worker.onmessage = $H.bindEnvironment((evt) => {
   ;
   const manifest = evt.data.manifest;
   const lane = Lanes.findOne(evt.data.lane);
-  const shipment = Shipments.findOne(evt.data.shipment);
-  shipment.stdout.push(evt.data.timestamp);
+  const shipment = Shipments.findOne(manifest.shipment_id);
 
+  shipment.stdout.push(evt.data.timestamp);
   Shipments.update(shipment._id, shipment);
 
   $H.call('Lanes#end_shipment', lane, exitCode, manifest);
@@ -61,19 +61,11 @@ const register = (lanes, users, harbors, shipments) => {
   return name;
 };
 
-const update = (lane, values) => {
-  return true;
-};
+const update = () => true;
 
 const work = (lane, manifest) => {
-  const shipment = Shipments.findOne({
-    lane: lane._id,
-    start: manifest.shipment_start_date,
-  });
-
   worker.postMessage({
     lane: lane._id,
-    shipment: shipment._id,
     manifest,
   });
 
