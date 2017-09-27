@@ -9,7 +9,6 @@
 
 const name = 'timestamp';
 let Lanes;
-let Harbors;
 let Shipments;
 
 const dependencies = ['tiny-worker', 'debug'].join(' ');
@@ -55,7 +54,6 @@ const renderDescription = () => (`
 
 const register = (lanes, users, harbors, shipments) => {
   Lanes = lanes;
-  Harbors = harbors;
   Shipments = shipments;
 
   return name;
