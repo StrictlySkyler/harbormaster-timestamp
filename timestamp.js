@@ -1,50 +1,44 @@
 /* eslint
-  strict: ["error", "global"],
   import/no-unresolved: 0,
-  no-underscore-dangle: ["error", { "allow": ["_id"] }]
+  no-underscore-dangle: ["error", { "allow": ["_id"] }],
+  global-require: 0,
+  no-restricted-globals: 0,
 */
 /* global $H, self, postMessage */
 
-'use strict';
-
 const name = 'timestamp';
+const pkgs = ['tiny-worker'];
 let Lanes;
 let Shipments;
 
-const dependencies = ['tiny-worker', 'debug'].join(' ');
+let Worker;
+let worker;
 
-require('child_process').execSync(`npm i ${dependencies}`);
+const next = () => {
+  Worker = require('tiny-worker');
+  worker = new Worker(() => {
+    self.onmessage = function handleMessage(evt) {
+      const { data } = evt;
+      data.timestamp = Date.now();
+      data.exitCode = 0;
 
-const log = require('debug')(`${name}:log`);
+      postMessage(data);
+    };
+  });
+  worker.onmessage = $H.bindEnvironment((evt) => {
+    const exitCode = evt.data.exitCode === 0 ?
+      evt.data.exitCode :
+      (evt.data.exitCode || 1);
+    const { manifest } = evt.data;
+    const lane = Lanes.findOne(evt.data.lane);
+    const shipment = Shipments.findOne(manifest.shipment_id);
 
-log('Dependencies installed:', dependencies);
+    shipment.stdout.push(evt.data.timestamp);
+    Shipments.update(shipment._id, shipment);
 
-const Worker = require('tiny-worker');
-
-const worker = new Worker(() => {
-  self.onmessage = function handleMessage(evt) {
-    const data = evt.data;
-    data.timestamp = Date.now();
-    data.exitCode = 0;
-
-    postMessage(data);
-  };
-});
-
-worker.onmessage = $H.bindEnvironment((evt) => {
-  const exitCode = evt.data.exitCode === 0 ?
-    evt.data.exitCode :
-    (evt.data.exitCode || 1)
-  ;
-  const manifest = evt.data.manifest;
-  const lane = Lanes.findOne(evt.data.lane);
-  const shipment = Shipments.findOne(manifest.shipment_id);
-
-  shipment.stdout.push(evt.data.timestamp);
-  Shipments.update(shipment._id, shipment);
-
-  $H.call('Lanes#end_shipment', lane, exitCode, manifest);
-});
+    $H.call('Lanes#end_shipment', lane, exitCode, manifest);
+  });
+};
 
 const renderDescription = () => (`
   <p>This harbor records a timestamp for when it is called.</p>
@@ -56,7 +50,7 @@ const register = (lanes, users, harbors, shipments) => {
   Lanes = lanes;
   Shipments = shipments;
 
-  return name;
+  return { name, pkgs };
 };
 
 const update = () => true;
@@ -76,5 +70,6 @@ module.exports = {
   register,
   update,
   work,
+  next,
 };
 
