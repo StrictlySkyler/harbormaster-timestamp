@@ -1,6 +1,6 @@
 {
   "name": "harbormaster-timestamp",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Log a timestamp.",
   "main": "timestamp.js",
   "dependencies": {
@@ -14,12 +14,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/getprodigy/harbormaster-timestamp.git"
+    "url": "git+https://github.com/strictlyskyler/harbormaster-timestamp.git"
   },
-  "author": "Skyler Brungardt <skyler@getprodigy.com>",
+  "author": "Skyler Brungardt <skyler.brungardt@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/getprodigy/harbormaster-timestamp/issues"
+    "url": "https://github.com/strictlyskyler/harbormaster-timestamp/issues"
   },
-  "homepage": "https://github.com/getprodigy/harbormaster-timestamp#readme"
+  "homepage": "https://github.com/strictlyskyler/harbormaster-timestamp#readme"
 }
